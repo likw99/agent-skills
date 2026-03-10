@@ -1,2 +1,5 @@
 *.skill
 .DS_Store
+skills/llm-daily/scripts/cache/
+skills/llm-daily/scripts/output/
+skills/llm-daily/scripts/collectors/__pycache__/
