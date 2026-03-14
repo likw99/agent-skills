@@ -28,7 +28,7 @@ This will parse all RSS feeds, JSON APIs, and XML APIs, generating a single mark
 
 ### Step 2: Generate Newsletter
 
-Read the generated `scripts/output/context.md` file using your file reading tools. Using this context, generate the final newsletter based on the **Newsletter Structure** and **Section Generation Prompts** below. 
+Read the generated `scripts/output/context.md` file using your file reading tools. Then open `references/newsletter_template.md` and follow it exactly when drafting the final newsletter. Use the source context to synthesize a readable briefing, not a raw dump of links.
 
 Write the final newsletter to `scripts/output/llm_newsletter_YYYY-MM-DD.md`.
 
@@ -46,49 +46,13 @@ Without `BUTTONDOWN_API_KEY`, the newsletter is only generated locally.
 
 ## Newsletter Structure
 
-Follow this template exactly:
+The canonical newsletter structure now lives in `references/newsletter_template.md`.
 
-```markdown
-# 🔍 LLM DAILY
-## Your Daily Briefing on Large Language Models
-**{date}**
-
-{stats_line}
-
----
-
-# HIGHLIGHTS
-{3-5 bullet points of key developments across all sections}
-
----
-
-# BUSINESS
-{funding, M&A, company updates, market analysis}
-
----
-
-# PRODUCTS
-{new releases, updates, applications, community reception}
-
----
-
-# TECHNOLOGY
-{open source projects, models/datasets, developer tools, infrastructure}
-
----
-
-# RESEARCH
-## Paper of the Day
-{single most significant paper with full details}
-
-## Notable Research
-{3-5 other significant papers}
-
----
-
-# LOOKING AHEAD
-{emerging trends and predictions, 1-2 paragraphs}
-```
+Use that file as the source of truth for:
+- the markdown layout
+- section order
+- scan-friendly formatting rules
+- which sections to omit
 
 ## Section Generation Prompts
 
@@ -97,36 +61,46 @@ Apply these guidelines when drafting each section based on the collected context
 #### BUSINESS Section
 Source data: VentureBeat, TechCrunch.
 - Cover: funding rounds, M&A, company announcements, market trends
-- Include direct links to original articles
+- Include direct links to original articles using markdown links
 - Focus on developments from the past 24-48 hours
+- Prefer 3-4 strong items over exhaustive coverage
+- Each item should explain both what happened and why it matters
 
 #### PRODUCTS Section
 Source data: Product Hunt, Hacker News.
 - Cover: new AI product launches, updates, applications, user feedback
-- Include direct links and company attribution
+- Include direct links and company attribution using markdown links
 - Specify if startup or established player
+- Keep each item concise and readable for a general technical audience
 
 #### TECHNOLOGY Section
 Source data: GitHub Recent Top AI Repos, HuggingFace Trending Models.
 - Cover: open source projects, new models, developer tools, infrastructure
-- Include direct links to GitHub repos and HuggingFace pages
+- Include direct links to GitHub repos and HuggingFace pages using markdown links
 - Highlight distinctive features and technical details
+- Focus on the few items that are actually novel or important
 
 #### RESEARCH Section
 Source data: ArXiv LLM Papers.
-- "Paper of the Day": single most significant paper with title, authors, institutions,
-  arXiv link, 2-3 sentence significance explanation, key findings summary
-- "Notable Research": 3-5 other papers with title, primary author, arXiv link,
-  1-2 sentence summary
+- Do not include a "Paper of the Day" subsection
+- Present research as a single "Research" list with the strongest 4-6 papers
+- For each paper: include title, primary author (or first author) when available,
+  arXiv link, 1-2 sentence summary, and why it matters when that is clear
 - Always include arXiv URLs in format `https://arxiv.org/abs/XXXX.XXXXX`
 
 #### HIGHLIGHTS Section
 Generate after all other sections. Extract 3-5 most important developments as bullet points.
-Each bullet: concise (1-2 sentences), specific, using "•" symbol.
+Each bullet: concise (1-2 sentences), specific, and formatted as a normal markdown bullet using `-`.
 
-#### LOOKING AHEAD Section
-1-2 paragraphs identifying emerging trends and predictions. Reference current quarter.
-Keep concise (~100 words).
+## Markdown Style Rules
+
+- Use standard markdown bullets (`-`) and ordered lists (`1.`), not decorative bullets such as `•`
+- Use descriptive markdown links instead of raw URLs or separate `Link:` lines
+- Prefer title case section headings for readability
+- Keep sections skimmable: short paragraphs, short bullets, generous spacing
+- Do not include the old stats line below the date
+- Do not include a "Looking Ahead" section
+- If a section is thin, keep it short instead of padding it with weak items
 
 ## Configuration
 
