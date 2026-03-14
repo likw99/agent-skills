@@ -43,9 +43,14 @@ sources:
   - name: ArXiv LLM Papers
     category: RESEARCH
     type: xml_api
-    url: "https://export.arxiv.org/api/query?search_query=all:%22large%20language%20model%22&sortBy=submittedDate&sortOrder=desc&max_results=10"
+    url: "https://export.arxiv.org/api/query"
+    max_items: 10
     parser_config:
       item_tag: "entry"
       title_tag: "title"
       link_tag: "id"
       description_tag: "summary"
+      request_params:
+        search_query: '(abs:"large language model" OR abs:LLM)'
+        sortBy: "submittedDate"
+        sortOrder: "descending"
