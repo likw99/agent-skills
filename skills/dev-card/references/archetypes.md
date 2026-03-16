@@ -246,13 +246,13 @@ the focus is on building, not maintaining."}
 - **Dominant Intent labels**: feat → "Feature builder", fix → "Bug fixer", refactor → "Refactorer", wip → "Chaos mode", docs → "Documentarian", chore → "Maintainer".
 - **What the data says**: Always use real numbers from the JSON. Never be vague. Aim for 2–3 punchy sentences.
 - **Tone**: Confident, a little cheeky. Like a personality test result written by someone who actually reads code.
-- **X share link**: Build the pre-filled tweet using this exact template, substituting in the real archetype name and 2 key stats from the JSON. Pick the 2 most surprising or specific stats (e.g. peak hour, dominant intent %, avg commit size):
+- **X share link**: Build the pre-filled tweet using this exact template, substituting in the real archetype name and 2–3 key stats. Pick the most surprising or specific stats (e.g. peak hour, dominant intent %, avg commit size). Use the `hashtags` param — do NOT embed `#` in the text:
 
 ```
+text (URL-encoded):
 My git history says I'm "{Archetype Name}."
-{stat 1 — e.g. "5am peak."} {stat 2 — e.g. "67% feature commits."} {stat 3 — e.g. "Avg 518 lines/commit."}
+{stat 1 — e.g. "6am peak."} {stat 2 — e.g. "77% feature commits."} {stat 3 — e.g. "Avg 417 lines/commit."}
 What's your archetype? Run /dev-card 🃏
-#DevCard
 ```
 
-URL-encode the full text and use: `https://x.com/intent/tweet?text={encoded text}`
+Final URL: `https://x.com/intent/tweet?text={URL-encoded text}&hashtags=DevCard`

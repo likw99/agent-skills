@@ -285,13 +285,13 @@ Analyzed {total_files} files · {total_lines} lines of code · {date}
 
 ### Rules
 - Use real file names, real counts — specificity is what makes it land
-- The X share link in the footer should pre-fill this exact tweet (URL-encode the full text):
+- The X share link in the footer should pre-fill this exact tweet. Use the `hashtags` param — do NOT embed `#` in the text:
   ```
+  text (URL-encoded):
   Just ran /code-roast on {repo_name}. It got a {grade}.
   The Hall of Shame is brutal. 🔥
-  #CodeRoast
   ```
-  Use: `https://x.com/intent/tweet?text={encoded text}`
+  Final URL: `https://x.com/intent/tweet?text={URL-encoded text}&hashtags=CodeRoast`
 - Do not include raw JSON metrics in the output
 - Total length: 300–600 lines is ideal. Long enough to be thorough, short enough to screenshot
 - Use emoji sparingly: only 🔥, 💀, 🗑️, ⚰️, 🧪, 🌿 are appropriate

@@ -9,6 +9,14 @@ derived signals Claude uses to assign an archetype.
 Usage:
     uv run analyze.py [path]          # analyze repo at path (default: cwd)
     uv run analyze.py [path] --debug  # pretty-print JSON to stdout
+
+Security posture:
+    - subprocess is used only to invoke `git` with hardcoded, read-only
+      subcommands (log, ls-files, rev-parse). No shell=True, no user input
+      is passed to the shell.
+    - All file I/O is read-only. No files are written or deleted.
+    - No network calls are made.
+    - The repo path is validated as an existing directory before use.
 """
 
 import os
@@ -394,8 +402,8 @@ def main():
 
     root = Path(paths[0]).resolve() if paths else Path.cwd()
 
-    if not root.exists():
-        print(f'Error: path not found: {root}', file=sys.stderr)
+    if not root.exists() or not root.is_dir():
+        print(f'Error: not a valid directory: {root}', file=sys.stderr)
         sys.exit(1)
 
     data = analyze(root)
