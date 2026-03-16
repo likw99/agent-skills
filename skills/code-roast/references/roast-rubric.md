@@ -280,12 +280,18 @@ Analyzed {total_files} files · {total_lines} lines of code · {date}
 
 ---
 
-*🔥 Roasted by Claude · [Share your grade on X](https://x.com/intent/tweet?text=My+codebase+just+got+roasted+and+got+a+{grade}.+%23CodeRoast) · Run `/code-roast` to get yours*
+*🔥 Roasted by Claude · [Share on X →]({X share link — see Rules below}) · Run `/code-roast` to get yours*
 ```
 
 ### Rules
 - Use real file names, real counts — specificity is what makes it land
-- The Twitter/X share link in the footer should pre-fill the grade
+- The X share link in the footer should pre-fill this exact tweet (URL-encode the full text):
+  ```
+  Just ran /code-roast on {repo_name}. It got a {grade}.
+  The Hall of Shame is brutal. 🔥
+  #CodeRoast
+  ```
+  Use: `https://x.com/intent/tweet?text={encoded text}`
 - Do not include raw JSON metrics in the output
 - Total length: 300–600 lines is ideal. Long enough to be thorough, short enough to screenshot
 - Use emoji sparingly: only 🔥, 💀, 🗑️, ⚰️, 🧪, 🌿 are appropriate
