@@ -32,6 +32,13 @@ This repository contains skills for Agents.
 - "Make my dev card."
 - "What's my developer archetype?"
 
+### [trustskills](skills/trustskills/SKILL.md)
+**Description:** Provides a trust decision before installing a skill from a URL or repository by checking against a list of trusted distribution channels and official roots.
+
+**Usage:**
+- "/trustskills https://github.com/likw99/agent-skills"
+- "Is this skill source official?"
+
 ## Structure
 - `skills/`: Source code for skills.
 - `specs/`: Design specifications for skills.
