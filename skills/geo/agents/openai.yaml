@@ -1,0 +1,4 @@
+interface:
+  display_name: "GEO"
+  short_description: "Optimize sites for AI answer citations"
+  default_prompt: "Use $geo to audit my website for generative engine visibility and create a prioritized action plan."
