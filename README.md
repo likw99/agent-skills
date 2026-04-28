@@ -11,6 +11,13 @@ This repository contains skills for Agents.
 - "Give me today's LLM briefing."
 - "Publish today's LLM Daily newsletter."
 
+### [geo](skills/geo/SKILL.md)
+**Description:** Optimizes websites, docs, products, and brands for AI answer engines, citations, crawler access, llms.txt, structured data, and GEO/AEO visibility.
+
+**Usage:**
+- "Audit my site for GEO."
+- "Make our docs show up better in ChatGPT Search and Perplexity."
+
 ### [sync-trending](skills/sync-trending/SKILL.md)
 **Description:** Monitors technology trends (GitHub, etc.), contextualizes them against the user's project, and autonomously verifies them through installation and testing.
 
