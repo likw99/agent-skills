@@ -25,6 +25,13 @@ This repository contains skills for Agents.
 - "What are trending repos this week?"
 - "Sync me on trending tech."
 
+### [seedance-2-0-prompt-guide](skills/seedance-2-0-prompt-guide/SKILL.md)
+**Description:** Drafts, improves, and reviews BytePlus Dreamina Seedance 2.0 video-generation prompts using the official prompt guide patterns.
+
+**Usage:**
+- "Write a Seedance 2.0 prompt for this product video."
+- "Improve this Seedance prompt with image and video references."
+
 ### [code-roast](skills/code-roast/SKILL.md)
 **Description:** Roasts a codebase with a brutally honest, funny audit and shareable report card. Grades it A+ to F across 9 shame categories with wit, specific file callouts, and actionable fixes.
 
