@@ -25,6 +25,13 @@ This repository contains skills for Agents.
 - "What are trending repos this week?"
 - "Sync me on trending tech."
 
+### [domain-research](skills/domain-research/SKILL.md)
+**Description:** Researches and ranks available domain names for a business idea using Cloudflare availability/pricing checks, search-engine signal/noise, traffic-intent analysis, and brand-risk diligence.
+
+**Usage:**
+- "Find me the best available domains for this startup idea."
+- "Check whether these domains are worth buying."
+
 ### [seedance-2-0-prompt-guide](skills/seedance-2-0-prompt-guide/SKILL.md)
 **Description:** Drafts, improves, and reviews BytePlus Dreamina Seedance 2.0 video-generation prompts using the official prompt guide patterns.
 

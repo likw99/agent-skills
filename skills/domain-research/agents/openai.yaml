@@ -1,0 +1,12 @@
+interface:
+  display_name: "Domain Research"
+  short_description: "Find available domains with traffic upside"
+  default_prompt: "Use $domain-research to brainstorm and rank available domains for my business idea."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "cloudflare"
+      description: "Cloudflare API/Radar MCP for Registrar availability, pricing, and traffic context"
+      transport: "streamable_http"
+      url: "https://mcp.cloudflare.com/mcp"
