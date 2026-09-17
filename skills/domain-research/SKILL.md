@@ -1,13 +1,13 @@
 ---
 name: domain-research
-description: Use when naming a product or startup, finding or choosing a domain name, checking whether domains are available or what they cost to register and renew, comparing TLDs (.com, .ai, .io, .app, .dev), screening candidate names for search collisions, SEO noise, trademark risk or search demand, or when a new app needs its name and domain before setup (in saas-starter, before `pnpm init-product`). Produces a ranked shortlist of buyable domains backed by live registrar and search evidence.
+description: Use when naming a product or startup, finding or choosing a domain name, checking whether domains are available or what they cost to register and renew, comparing TLDs (.com, .ai, .io, .app, .dev), screening candidate names for search collisions, SEO noise, trademark risk or search demand, or when a new app needs its name and domain before setup. Produces a ranked shortlist of buyable domains backed by live registrar and search evidence.
 ---
 
 # Domain Research
 
 Find domains worth buying: available, affordable to keep, memorable, low-noise in search, and aimed at real demand. This is founder-speed naming diligence, not a creativity exercise. A beautiful name that is taken, noisy or expensive to renew loses.
 
-`scripts/…` and `references/…` paths are inside this skill's folder (in saas-starter: `.agents/skills/domain-research/`); every other path is in the project. The scripts need only `python3`. Keep working files such as candidate lists and JSON results in a folder that isn't committed (in saas-starter: `.cache/domain-research/`).
+`scripts/…` and `references/…` paths are inside this skill's folder; every other path is in the project. The scripts need only `python3`. Keep working files such as candidate lists and JSON results in a folder that isn't committed, such as `.cache/domain-research/`.
 
 ## Evidence sources
 
@@ -27,7 +27,7 @@ Setup and caveats: [cloudflare-mcp.md](references/cloudflare-mcp.md), [search-si
 
 Extract the business idea, audience, job-to-be-done, category, differentiator, geography, budget and launch urgency. If context is thin, proceed on stated MVP assumptions.
 
-TLD defaults. A project's own naming policy overrides them (in saas-starter: `docs/distribution/README.md` §2).
+TLD defaults. A project's own naming or domain policy overrides them.
 - `.com` for any brand you might keep.
 - `.ai`, `.app`, `.dev`, `.io` or `.co` only when the product and audience make it credible. Price each one live: several renew above their first-year price, and `.ai` needs a two-year minimum.
 - Country TLDs only for a geographically focused market. Novelty and keyword TLDs only when they make the name clearly better; they carry no search advantage.
@@ -77,7 +77,7 @@ Use [report-template.md](references/report-template.md) for larger requests. A q
 - Risks: trademark, ambiguity, spam associations, premium or rising renewal, weak TLD.
 - The checks that ran, and the evidence sources that were missing.
 
-**In a saas-starter app** (its `package.json` defines `init-product`), save the report as `docs/app/research/domain.md`. Once the human has chosen and bought the domain, run `pnpm init-product --name "<Name>" --domain <domain> --tagline "<tagline>"` (go-live step 7). That writes the name and domain into `DISTRIBUTION.md`; fill in that section's trademark-check date and research link yourself.
+**In a project with its own conventions**, save the report where the project keeps research docs. Once the human has chosen and bought the domain, run the project's setup step for the product name and domain if it has one, then record the decision, the trademark-check date and a link to the report where the project tracks them.
 
 ## Rules
 
