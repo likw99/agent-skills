@@ -1,102 +1,99 @@
 ---
 name: domain-research
-description: Research, brainstorm, verify, and rank domain names for a business idea using live domain availability, Cloudflare Registrar/MCP pricing when available, search-engine signal/noise checks, traffic-intent analysis, and founder-speed brand diligence. Use when the user asks to find a domain name, name a startup/product, check domain availability or prices, compare TLDs, assess SEO/search traffic potential of candidate domains, or produce a ranked shortlist of buyable domains.
+description: Use when naming a product or startup, finding or choosing a domain name, checking whether domains are available or what they cost to register and renew, comparing TLDs (.com, .ai, .io, .app, .dev), screening candidate names for search collisions, SEO noise, trademark risk or search demand, or when a new app needs its name and domain before setup (in saas-starter, before `pnpm init-product`). Produces a ranked shortlist of buyable domains backed by live registrar and search evidence.
 ---
 
 # Domain Research
 
-## Overview
+Find domains worth buying: available, affordable to keep, memorable, low-noise in search, and aimed at real demand. This is founder-speed naming diligence, not a creativity exercise. A beautiful name that is taken, noisy or expensive to renew loses.
 
-Find domains that are actually worth buying: available, affordable, memorable, low-noise in search, and aligned with real internet demand. Treat this as founder-speed naming diligence, not a pure creativity exercise.
+`scripts/…` and `references/…` paths are inside this skill's folder (in saas-starter: `.agents/skills/domain-research/`); every other path is in the project. The scripts need only `python3`. Keep working files such as candidate lists and JSON results in a folder that isn't committed (in saas-starter: `.cache/domain-research/`).
+
+## Evidence sources
+
+Check what this session has before starting, and report which source answered each question.
+
+| Question | Best | Fallback | Last resort |
+|---|---|---|---|
+| Can it be registered, and what does it cost to keep? | `scripts/check_domains.py` with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` | A connected Cloudflare API MCP, same endpoint | `scripts/check_domains.py --rdap`: free, no price, and "unregistered" is not a yes |
+| Does someone already own the name in search? | A browser tool reading real Google results | `scripts/check_search_signal.py` with `SERPAPI_KEY` or `SERPER_API_KEY` | Ask the human to run the searches; mark the name unverified |
+| Does anyone search for the problem? | People also ask and related searches on category queries | Google Trends, Keyword Planner | Say that demand is unmeasured |
+
+Setup and caveats: [cloudflare-mcp.md](references/cloudflare-mcp.md), [search-signal-playbook.md](references/search-signal-playbook.md).
 
 ## Workflow
 
-### 1. Frame the Idea
+### 1. Frame the idea
 
-Extract the business idea, audience, job-to-be-done, category, differentiator, geography, budget, and launch urgency. If context is thin, proceed with reasonable MVP assumptions and state them briefly.
+Extract the business idea, audience, job-to-be-done, category, differentiator, geography, budget and launch urgency. If context is thin, proceed on stated MVP assumptions.
 
-Set TLD defaults:
-- Prioritize `.com` when a serious brand or broad consumer market matters.
-- Include `.ai`, `.app`, `.dev`, `.io`, and `.co` when the product/category makes them credible.
-- Consider country TLDs only when the market is geographically focused.
-- Treat novelty TLDs as optional unless they make the name meaningfully better.
+TLD defaults. A project's own naming policy overrides them (in saas-starter: `docs/distribution/README.md` §2).
+- `.com` for any brand you might keep.
+- `.ai`, `.app`, `.dev`, `.io` or `.co` only when the product and audience make it credible. Price each one live: several renew above their first-year price, and `.ai` needs a two-year minimum.
+- Country TLDs only for a geographically focused market. Novelty and keyword TLDs only when they make the name clearly better; they carry no search advantage.
 
-### 2. Generate a Candidate Universe
+### 2. Generate a candidate universe
 
-Generate 40-100 candidate domains before filtering. Mix these lanes:
-- Literal/category: direct keyword combinations users already search.
-- Outcome-led: the result the user wants.
-- Verb-led: an action the product helps people take.
-- Audience-led: names that signal who it is for.
-- Brandable compounds: two clear words with a strong mental image.
-- Short coined names: easy spelling, no awkward pronunciation.
-- Prefix/suffix MVP patterns: `get`, `try`, `use`, `join`, `hq`, `labs`, `studio`, only when the base name is strong.
+Generate 40–100 candidates before filtering. Read [naming-patterns.md](references/naming-patterns.md) and choose patterns on two separate questions:
+- **Product-fit:** does this product have a natural filler for the pattern's slot?
+- **Structural risk:** is the pattern's shape risky for any product (a famous convention, squatter bait, IP-adjacent vocabulary)?
 
-Cull early for obvious failures: hard spelling, hyphens, numbers, trademark bait, confusing homophones, accidental adult/gambling/crypto meanings, and names that require a long explanation.
+Cull early: hard spelling, hyphens, digits, someone else's trademark, confusing homophones, accidental adult, gambling or crypto meanings, and names that need a long explanation.
 
-### 3. Verify Availability and Price
+### 3. Verify availability and price
 
-Use Cloudflare MCP/Registrar when available. Read [cloudflare-mcp.md](references/cloudflare-mcp.md) before performing live checks.
+Read [cloudflare-mcp.md](references/cloudflare-mcp.md), then batch the candidates through the best available source: `scripts/check_domains.py --file candidates.txt --json`. Each record carries status, first-year price, renewal price, currency, source and timestamp; keep all of them.
 
-Record for every checked domain: availability status, registration price, renewal price when exposed, transfer price when exposed, currency, premium flag, TLD support, source, and timestamp.
+- Only `available` is a registrar's yes. `premium`, `unknown`, `unsupported` and RDAP's `unregistered` are unresolved: confirm them another way or label them unverified. `taken` and `frozen` are out.
+- Judge cost by the renewal price, since that is what keeping the domain costs.
+- Never buy, register, renew, transfer or change DNS. Recommend, and let the human buy.
 
-Never purchase, register, transfer, or change DNS without explicit user confirmation.
+### 4. Check search signal and noise
 
-If live Cloudflare availability is unavailable, label results as "unverified" and do only soft filtering with DNS/RDAP/search evidence. Do not present soft checks as final availability.
+For each serious candidate, run the query matrix in [search-signal-playbook.md](references/search-signal-playbook.md). Start with the bare exact phrase, one candidate per query. Then search the exact domain, the brand plus its category, risk terms, and trademark or company collisions.
 
-### 4. Check Search Signal/Noise
+With a browser tool, read real results pages. Otherwise run `scripts/check_search_signal.py <name>`, and `--query '<query>'` for the rest of the matrix. The script only fetches; reading and judging the results is your job. A spelling-fix or zero-mention warning means the name has not been checked yet.
 
-Read [search-signal-playbook.md](references/search-signal-playbook.md) for the query matrix. For each serious candidate, run live searches for:
-- Exact brand phrase.
-- Exact domain.
-- Brand plus category.
-- Category intent terms.
-- Negative/risk terms.
-- Trademark/company collisions.
+### 5. Check category demand
 
-Judge traffic potential from the market/category queries and adjacent demand, not from a nonexistent domain's current traffic. Use Cloudflare Radar or similar traffic tools to inspect existing exact-match domains, competitors, category leaders, and TLD-level context when available.
+This asks a different question from step 4: not "does someone own this name?" but "does anyone search for this problem?" Follow the Category Demand section of [search-signal-playbook.md](references/search-signal-playbook.md), and report the answer on its own line, apart from name collisions.
 
-### 5. Score and Shortlist
+### 6. Score and shortlist
 
-Read [scoring-rubric.md](references/scoring-rubric.md). Score domains on a 100-point scale:
-- Business fit: 20
-- Traffic intent: 20
-- Search signal/noise: 20
-- Brand quality: 15
-- Availability/economics: 15
-- Risk/defensibility: 10
-
-For consistent scoring, optionally run:
+Score with [scoring-rubric.md](references/scoring-rubric.md): business fit 20, traffic intent 20, search signal and noise 20, brand quality 15, availability and economics 15, risk and defensibility 10. For consistent numbers, add your judgments to the `check_domains.py --json` records and run:
 
 ```bash
-python3 <skill_dir>/scripts/score_domains.py candidates.json --markdown
+python3 scripts/score_domains.py candidates.json --markdown
 ```
 
-The script expects gathered evidence, not raw ideas. It does not check availability or search.
+The script scores the evidence you gathered and checks nothing itself. It never labels an unverified domain Buy now, and neither should you.
 
-### 6. Deliver the Decision
+### 7. Deliver the decision
 
-Use [report-template.md](references/report-template.md) for larger requests. For quick requests, still include:
-- Top 5-10 domains ranked.
-- Availability and price evidence.
-- Why each name fits.
-- Search signal and noise summary.
-- Risks: trademark, ambiguity, spam, premium renewal, TLD weakness.
-- Clear recommendation: buy now, watch, or avoid.
-- Exact checks performed and timestamp.
+Use [report-template.md](references/report-template.md) for larger requests. A quick answer still includes:
+- The top 5–10 domains, ranked and labeled Buy now, Strong shortlist, Watch or Avoid.
+- Status, first-year and renewal price, with source and timestamp.
+- Why each name fits, its search signal and noise, and the category-demand read.
+- Risks: trademark, ambiguity, spam associations, premium or rising renewal, weak TLD.
+- The checks that ran, and the evidence sources that were missing.
+
+**In a saas-starter app** (its `package.json` defines `init-product`), save the report as `docs/app/research/domain.md`. Once the human has chosen and bought the domain, run `pnpm init-product --name "<Name>" --domain <domain> --tagline "<tagline>"` (go-live step 7). That writes the name and domain into `DISTRIBUTION.md`; fill in that section's trademark-check date and research link yourself.
 
 ## Rules
 
-- Prefer real evidence over clever naming. A beautiful unavailable or high-noise name loses.
-- Do not fabricate availability, prices, search volume, rankings, or trademark status.
-- State when results are approximate or unavailable because a tool is missing.
-- Keep founder context in mind: surface fast, practical buys before exhaustive naming theory.
-- Do not provide legal advice. Flag trademark risk and recommend counsel for high-stakes launches.
+- Prefer real evidence over clever naming.
+- Never fabricate availability, prices, search volume, rankings or trademark status. Say what a missing tool left unchecked.
+- Surface fast, practical buys before exhaustive naming theory.
+- Flag trademark risk without giving legal advice, and recommend counsel for high-stakes launches.
+- Never recommend an expired or dropped domain for its backlinks or leftover traffic; Google treats that as spam.
 
 ## Resources
 
-- `references/cloudflare-mcp.md` - Cloudflare MCP and Registrar availability/pricing workflow.
-- `references/search-signal-playbook.md` - live SERP and traffic-intent research method.
-- `references/scoring-rubric.md` - 100-point scoring model and rejection rules.
-- `references/report-template.md` - final deliverable template.
-- `scripts/score_domains.py` - deterministic scorer for already-researched candidates.
+- `references/naming-patterns.md`: pattern catalog with real brand exemplars, the four slots, product-fit versus structural risk.
+- `references/cloudflare-mcp.md`: Registrar availability and pricing, result statuses, token safety, the RDAP fallback, Radar.
+- `references/search-signal-playbook.md`: search tools, query rules and matrix, reading results, category demand.
+- `references/scoring-rubric.md`: the 100-point model, hard rejections, recommendation labels, base rates.
+- `references/report-template.md`: the full deliverable.
+- `scripts/check_domains.py`: availability and price from Cloudflare Registrar, or a free soft check with `--rdap`.
+- `scripts/check_search_signal.py`: Google results through SerpApi or Serper, with spelling-fix and mention warnings. Fetches only.
+- `scripts/score_domains.py`: deterministic scorer for researched candidates.

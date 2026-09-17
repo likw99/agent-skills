@@ -2,6 +2,23 @@
 
 Score only after gathering availability, price, and search evidence. Penalize uncertainty instead of pretending it is confidence.
 
+## Calibrate Expectations First
+
+**Expect a low overall hit rate, and don't read it as a sign something is
+being done wrong.** Most candidates checked will already be taken, and most
+of what *is* available will be available precisely because it means
+nothing — see `naming-patterns.md`'s clean ⟺ opaque law. Generate wide (40+
+candidates) rather than narrowing early.
+
+The actual yield on any given pattern varies by product, not by a fixed
+rate — it depends on how well that product's own vocabulary fills the
+pattern's slot (see `naming-patterns.md`'s product-fit vs. structural-risk
+framing). As one illustrative data point: a 17-round, ~1,190-domain project
+found real availability among *meaningful* candidates running close to 4%
+overall, and only ~15–20% of registrar-available names survived a real
+search-signal check — useful for calibrating that low yield is normal, not
+as a target rate to expect on a different product or pattern.
+
 ## 100-Point Model
 
 | Category | Points | How to score |
@@ -39,11 +56,11 @@ Brand quality:
 - 5-8: awkward length, spelling, or pronunciation.
 - 0-4: confusing, ugly, or hard to share verbally.
 
-Availability/economics:
-- 13-15: available at ordinary registration/renewal pricing.
-- 9-12: available but pricier TLD or mild renewal concern.
-- 5-8: premium, expensive, unsupported TLD, or uncertain pricing.
-- 0-4: unavailable or unverified.
+Availability/economics (price means the higher of first-year and renewal):
+- 13-15: registrar-confirmed available at an ordinary price.
+- 9-12: registrar-confirmed available, but a pricier TLD or a renewal above the first-year price.
+- 5-8: premium, expensive, or not sold by the intended registrar.
+- 0-4: taken, or not confirmed by a registrar (including an RDAP-only "unregistered").
 
 Risk/defensibility:
 - 9-10: no obvious conflicts and enough distinctiveness.
@@ -55,15 +72,18 @@ Risk/defensibility:
 
 Reject or quarantine domains with:
 
-- Confirmed unavailable status.
+- Taken, or a registry that accepts no new registrations.
 - Same-category trademark or confusingly similar incumbent.
 - Severe adult, scam, malware, hate, or illegal associations.
-- Renewal/premium price outside the user's stated budget.
+- Renewal or premium price outside the user's stated budget.
 - TLD unavailable through the user's intended registrar when registrar choice matters.
+- An expired or dropped domain wanted for its backlinks or leftover traffic.
 
 ## Recommendation Labels
 
-- `Buy now`: score 80+, available, affordable, low risk.
-- `Strong shortlist`: score 70-79, available, one manageable weakness.
-- `Watch`: promising but price, risk, or evidence is unresolved.
-- `Avoid`: unavailable, overpriced, high-noise, or high-risk.
+- `Buy now`: score 80+, registrar-confirmed available, affordable to renew, low risk.
+- `Strong shortlist`: score 70-79, registrar-confirmed available, one manageable weakness.
+- `Watch`: promising, but availability, price or risk is unresolved. Every domain a registrar hasn't confirmed lands here at best.
+- `Avoid`: taken, overpriced, high-noise, or high-risk.
+
+`scripts/score_domains.py` applies these caps, so a high score can't promote an unverified domain.

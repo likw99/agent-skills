@@ -1,71 +1,108 @@
-# Cloudflare MCP and Registrar Checks
+# Cloudflare Registrar, MCP and RDAP Checks
 
-Use this reference when verifying availability, prices, ownership status, Cloudflare Radar traffic context, or Cloudflare API details.
+Use this reference before checking availability or price, and for Cloudflare Radar traffic context. Verified against Cloudflare's API reference and live calls on 2026-09-17; trust the live docs if they disagree.
 
-## Tool Discovery
+## Contents
 
-Cloudflare's API MCP server exposes Cloudflare API access through a `search` tool for endpoint discovery and an `execute` tool for API calls. Tool names vary by client, so discover them instead of hard-coding names:
+- [Pick a path](#pick-a-path)
+- [The domain-check endpoint](#the-domain-check-endpoint)
+- [Reading results](#reading-results)
+- [Token and account safety](#token-and-account-safety)
+- [Through the Cloudflare MCP](#through-the-cloudflare-mcp)
+- [Without Cloudflare: RDAP and other soft evidence](#without-cloudflare-rdap-and-other-soft-evidence)
+- [Radar traffic context](#radar-traffic-context)
 
-1. Search available tools for `Cloudflare`, `cloudflare-api`, `MCP`, `registrar`, `domain`, and `radar`.
-2. If a Cloudflare API MCP tool is present, search within it for `registrar domain search`, `domain check`, `domain availability`, `registrar domains`, and `radar ranking`.
-3. If no Cloudflare MCP tool is connected, ask the user to connect it or proceed with a clearly labeled unverified fallback.
+## Pick a path
 
-Cloudflare's current MCP docs list a remote Cloudflare API server at `https://mcp.cloudflare.com/mcp`, plus product-specific servers such as Radar for Internet traffic insights and URL scans. Prefer the API/Radar MCP surfaces when available; use web docs only to confirm endpoint names and payloads.
+1. **`scripts/check_domains.py`**, when `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set. It batches, classifies every result and timestamps it, and works in any agent or terminal.
+2. **A connected Cloudflare API MCP** (`https://mcp.cloudflare.com/mcp`), when there is no token. It calls the same endpoint through its `execute` tool.
+3. **`scripts/check_domains.py --rdap`**, when neither is available. It is free and soft; see the RDAP section.
 
-## Registrar Endpoints to Prefer
+## The domain-check endpoint
 
-Use current Cloudflare API docs through MCP search before executing. The likely endpoint families are:
+`POST /accounts/{account_id}/registrar/domain-check` with body `{"domains": ["a.com", "b.ai"]}`:
 
-- `GET /accounts/{account_id}/registrar/domain-search` - search for registerable domain suggestions from a query/seed.
-- `POST /accounts/{account_id}/registrar/domain-check` - check whether specific domains can be registered.
-- `GET /accounts/{account_id}/registrar/domains` - list domains already managed by the account.
-- `GET /accounts/{account_id}/registrar/domains/{domain_name}` - inspect a domain already in the account.
+- It is read-only. It queries the registry in real time and reserves nothing.
+- It takes 1–20 fully qualified names per request; a 21st returns error `1007`. Internationalized names go in punycode.
+- It may silently omit malformed names; the script reports those as `unknown`.
+- Each result has `name`, `registrable`, usually `tier` (`standard` or `premium`), `reason` when not registrable, and `pricing` only when registrable: `{currency, registration_cost, renewal_cost}`. Prices are per-year strings.
 
-If endpoint names or payloads differ in live docs, trust the live docs.
+Related read-only endpoints:
+- `GET .../registrar/domain-search?q=...` suggests names from a keyword. The results are cached and not authoritative, so confirm them with domain-check.
+- `GET .../registrar/extensions` lists the TLDs the API can register (cursor pagination, at most 50 per page); on 2026-09-17 it listed 423, including `com`, `ai`, `io`, `app`, `dev` and `co`.
 
-## Data to Capture
+## Reading results
 
-For each checked domain, capture:
+| `registrable` / `reason` | Status | What it means |
+|---|---|---|
+| `true` | `available` | A registrar's yes, priced. The only status that can earn Buy now |
+| `true` with `tier: premium`, or `domain_premium` | `premium` | Registry-set price; the API won't register it. Price it in the dashboard, then judge it against the budget |
+| `domain_unavailable` | `taken` | Registered, reserved or otherwise blocked |
+| `extension_not_supported_via_api` | `unknown` | Cloudflare sells the TLD in its dashboard only. Check availability there. **It does not mean taken** |
+| `extension_not_supported` | `unsupported` | Cloudflare doesn't sell the TLD. Check another registrar |
+| `extension_disallows_registration` | `frozen` | The registry accepts no new registrations anywhere |
+| anything else, or no reason | `unknown` | Unresolved |
 
-- `domain`
-- `availability`: `available`, `unavailable`, `premium`, `unsupported`, `unknown`, or the exact API status.
-- `can_register` or equivalent boolean when exposed.
-- Registration price, renewal price, transfer price, currency, and term.
-- Premium-domain flag and premium price, if exposed.
-- TLD support status.
-- Source endpoint/tool name.
-- Timestamp and account context.
+Price notes:
+- **Judge by renewal.** `registration_cost` covers only the first year. In the 2026-09-17 check, `.io` cost $32 to register and $50 a year to renew, and `.org` $8.50 then $11.20.
+- **`.ai` has a two-year minimum,** so the first purchase costs twice the yearly price.
+- Never quote a remembered price; every recommendation carries a price checked in this session.
 
-Do not assume a price if the API omits it. Some APIs expose availability separately from price, and premium domains can behave differently from ordinary registrations.
+## Token and account safety
 
-## Fallback When MCP Is Missing
+Registration is a separate endpoint, `POST .../registrar/registrations`, and it is **billable and non-refundable**: it charges the account's default payment method.
 
-Use fallback checks only as soft evidence:
+- Create an account-owned token under **Manage account → API tokens** with the Registrar Domains permission. In August 2026 the token screen offered only an Admin level for it ([cloudflare-docs#32939](https://github.com/cloudflare/cloudflare-docs/issues/32939)), so assume the token can also buy domains. Use a read-only level if the screen offers one.
+- Give the token a short expiry. Keep it in the shell environment or an untracked `.env.local`, never in a repo, and never in CI.
+- A Cloudflare MCP session carries whatever access its sign-in granted.
+- Whichever path you use, call only `domain-check`, `domain-search`, `extensions` and Radar `GET`s. Never call `registrations`, and never change DNS.
 
-- DNS lookup: existing A/AAAA/CNAME/NS records imply use, not ownership availability.
-- RDAP/WHOIS: can show registration status but may be rate-limited or privacy-protected.
-- Search engine `site:domain.tld` and exact-domain queries: can show historical/current use.
-- Browser registrar pages: useful for manual hints, but avoid presenting them as Cloudflare-verified.
+## Through the Cloudflare MCP
 
-Mark fallback candidates as `availability: unknown` unless a reliable registrar/API confirms registerability.
+Tool names vary by client. Search the available tools for `cloudflare`, `registrar` and `domain`. The API server exposes `search` (find endpoints in the OpenAPI spec) and `execute` (run a JavaScript call with `cloudflare.request()` and a preset `accountId`):
 
-## Radar and Traffic Context
+```js
+async () => {
+  const domains = ["yourbrand.com", "yourbrand.ai"] // at most 20 per call
+  const res = await cloudflare.request({
+    method: "POST",
+    path: `/accounts/${accountId}/registrar/domain-check`,
+    body: { domains },
+  })
+  return res.result.domains
+}
+```
 
-Use Cloudflare Radar MCP/API for:
+Map each result with the table above, and record the source (`cloudflare-mcp`) and a timestamp. If no Cloudflare tool is connected and no token is set, ask the human to connect one, or continue with RDAP and label every result unverified.
 
-- Existing exact-match domains and competitors that already receive meaningful traffic.
-- Trending domains in the category.
-- Adjacent category leaders that indicate demand patterns.
-- TLD/context checks when deciding whether a TLD looks credible for the target audience.
+## Without Cloudflare: RDAP and other soft evidence
 
-Do not infer that an unregistered domain has current traffic. Its traffic upside comes from category demand, brand memorability, backlinks/PR potential, and search intent fit.
+`scripts/check_domains.py --rdap` asks each TLD's registry, found through IANA's bootstrap file (`https://data.iana.org/rdap/dns.json`), whether a registration record exists:
 
-## Safety Boundary
+- A `404` means **unregistered**, not available: premium, reserved and blocked names look the same, and there is no price.
+- A `200` means taken.
+- A TLD with no RDAP service is **unknown**. On 2026-09-16 the bootstrap covered `com`, `net`, `org`, `ai`, `app`, `dev` and `xyz`, but not `io`, `co`, `sh`, `me` or `us`. The shortcut `rdap.org` answers `404` for those TLDs even for registered names, so never read its 404 as free.
+- Registries rate-limit, so expect about one domain a second.
 
-Never register, renew, transfer, buy, bid on, or change DNS for a domain without explicit user confirmation in the current conversation.
+Other soft evidence: DNS records (A, AAAA, CNAME or NS) show that a domain is in use, not that it is free; `site:` searches show current or past use; a registrar's web page is a hint, not a verified result.
 
-## Source Anchors
+Anything not confirmed by a registrar stays `unregistered` or `unknown` in the report, and `score_domains.py` caps it at Watch.
 
+## Radar traffic context
+
+Radar uses the same MCP connection or token, with no extra setup:
+
+- `GET /radar/ranking/domain/{domain}`: rank details for an existing domain, such as a competitor or an aftermarket listing.
+- `GET /radar/ranking/top`: top or trending domains, filterable by category.
+- `GET /radar/ranking/timeseries_groups`: rank history.
+- `GET /radar/ranking/internet_services/{categories,top,timeseries_groups}`: the same, for named Internet-service categories.
+
+Radar is coarse by design. It gives an exact rank only for the global top 100; everything else falls into buckets (top 200k, top 1M, …) based on DNS query volume, not pageviews. Use it to sanity-check a comparable domain, never to estimate traffic. An unregistered domain has no current traffic; its upside comes from category demand, memorability and search-intent fit (see `search-signal-playbook.md`).
+
+## Source anchors
+
+- Registrar API guide: https://developers.cloudflare.com/registrar/registrar-api/
+- Registrar API reference: https://developers.cloudflare.com/api/resources/registrar/
 - Cloudflare MCP servers: https://developers.cloudflare.com/agents/model-context-protocol/mcp-servers-for-cloudflare/
-- Cloudflare Registrar API: https://developers.cloudflare.com/api/resources/registrar/
-- Cloudflare Radar ranking API: https://developers.cloudflare.com/api/resources/radar/subresources/ranking/
+- Radar ranking API: https://developers.cloudflare.com/api/resources/radar/subresources/ranking/
+- IANA RDAP bootstrap: https://data.iana.org/rdap/dns.json
