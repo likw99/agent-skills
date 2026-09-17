@@ -2,6 +2,26 @@
 
 This repository contains skills for Agents.
 
+## Installation
+
+Install all skills from this repository:
+
+```bash
+npx skills add likw99/agent-skills
+```
+
+General form:
+
+```bash
+npx skills add <owner/repo>
+```
+
+After installation, invoke a skill by name in your agent prompt, for example:
+
+```text
+Use $domain-research to find available domains for my startup idea.
+```
+
 ## Available Skills
 
 ### [llm-daily](skills/llm-daily/SKILL.md)
